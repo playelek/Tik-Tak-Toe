@@ -133,7 +133,7 @@ def main():
     winRateO = 0.5
     drawRate = 0.0
     play_mode = '0'
-    pMode = ['1','2','3']
+    pMode = ['1','2']
     mk.load_state_action()
     # scnclear()
     while play_mode not in pMode:
@@ -141,7 +141,7 @@ def main():
                 Machine has {} states
                 [1] : You VS Machine
                 [2] Machine VS Machine'''.format(len(mk.state_action)))
-        play_mode = input("Please Choose [1-3]")
+        play_mode = input("Please Choose [1-2]")
         print("PlayMode : {}".format(play_mode))
 
     while play_again == 'Y' or play_again == 'y':
