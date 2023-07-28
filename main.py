@@ -112,6 +112,15 @@ print(__name__)
 
 def main():
     # PLaying
+    argumentList = sys.argv[1:]
+    print ("argumentList : {}".format(argumentList))
+    if "-g" in argumentList:
+        print ('run with show update graph')
+        mk.updateGraph = True
+    if "-d" in argumentList:
+        print ('run with show update graph')
+        mk.updateGraph = True
+
     play_again = 'Y'
     player_choice = 'Y'
     current_player = 1
@@ -126,13 +135,12 @@ def main():
     play_mode = '0'
     pMode = ['1','2','3']
     mk.load_state_action()
-    scnclear()
+    # scnclear()
     while play_mode not in pMode:
         print('''Choose Play Mode :
                 Machine has {} states
                 [1] : You VS Machine
-                [2] Random VS Machine
-                [3] Machine VS Machine'''.format(len(mk.state_action)))
+                [2] Machine VS Machine'''.format(len(mk.state_action)))
         play_mode = input("Please Choose [1-3]")
         print("PlayMode : {}".format(play_mode))
 
@@ -166,26 +174,28 @@ def main():
                         block_choice = AI_turn(state = game_state, playas = current_player)
                     else:
                         block_choice = Human_turn(state = game_state, playas = current_player)
-                elif play_mode == '3':
+                elif play_mode == '2':
                     block_choice = AI_turn(state = game_state, playas = current_player)
                 else:
-                    if mk.playFirst: 
-                        block_choice = AI_turn(state = game_state, playas = current_player)
-                    else:
-                        block_choice = random_turn(state = game_state, playas = current_player)
+                    # if mk.playFirst: 
+                    #     block_choice = AI_turn(state = game_state, playas = current_player)
+                    # else:
+                    #     block_choice = random_turn(state = game_state, playas = current_player)
+                    block_choice = AI_turn(state = game_state, playas = current_player)
             else:   # play O
                 if play_mode == '1':
                     if not mk.playFirst: 
                         block_choice = AI_turn(state = game_state, playas = current_player)
                     else:
                         block_choice = Human_turn(state = game_state, playas = current_player)
-                elif play_mode == '3':
+                elif play_mode == '2':
                     block_choice = AI_turn(state = game_state, playas = current_player)
                 else:
-                    if not mk.playFirst: 
-                        block_choice = AI_turn(state = game_state, playas = current_player)
-                    else:
-                        block_choice = random_turn(state = game_state, playas = current_player)
+                    # if not mk.playFirst: 
+                    #     block_choice = AI_turn(state = game_state, playas = current_player)
+                    # else:
+                    #     block_choice = random_turn(state = game_state, playas = current_player)
+                    block_choice = AI_turn(state = game_state, playas = current_player)
             play_move(game_state ,dict_state[current_player], block_choice)
             time.sleep(3)
             scnclear()
@@ -220,9 +230,9 @@ def main():
             time.sleep(1)
         if play_mode == '1':
             play_again = input('Lets Play Again?(Y/N) : ')
-        elif play_mode == '2':
-            mk.playFirst = not mk.playFirst
-            play_again = 'Y'
+        # elif play_mode == '2':
+        #     mk.playFirst = not mk.playFirst
+        #     play_again = 'Y'
         else:
             play_again = 'Y'
 

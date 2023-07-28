@@ -29,6 +29,9 @@ class markov:
                     'draw' : 0
                 }
 
+    updateGraph = False
+    debugShow = False
+
     def __init__(self):
         self.versions = "1.0"
         self.name = "markov"
@@ -40,7 +43,8 @@ class markov:
         flists = open("{}".format(fname), 'r')
         print("flist was open : {}".format(flists))
         dat = flists.read()
-        # print("JSON data : {}".format(dat))
+        if (self.debugShow == True):
+            print("JSON data : {}".format(dat))
         if dat :
             self.state_action = json.loads(dat)
 
@@ -65,20 +69,19 @@ class markov:
         if len(self.state_action) == 0:
             return '-1' , []
         for keys , value in self.state_action.items():
+            # print("keys : {} - value : {}".format(keys, value))
             if state == value['state']:
                 return keys , value["state"]
         return '-1' , []            
 
     def random_next(self , state):
-        aval_block = []
+        aval_block = state
         play_block = 0
-        for pos in range(len(state)):
-            if state[pos] == 0:
-                aval_block.append(pos+1)
+        # print("random_next - state : {}".format(state))
         print("get aval_block : {}".format(aval_block))
-        play_block = random.choice(aval_block)
+        play_block = random.choices(aval_block)
         print("get play_block : {}".format(play_block))
-        return play_block 
+        return play_block, 0, False
 
     def score_calculate(self , currentStep = '-1' , playas = 0):
         listStep = []
@@ -104,11 +107,13 @@ class markov:
                                         'score' : stepScore,
                                         'status' : status
                                     }
-                print("score_calculate get byStep : {}, stepScore : {:7.4f}, status : {}".format(currentStep , stepScore , status))
+                if (self.debugShow == True):
+                    print("score_calculate get byStep : {}, stepScore : {:7.4f}, status : {}".format(currentStep , stepScore , status))
                 self.listEdge.append(tuple([currentStep,byStep,abs(stepScore)]))
             # print("score_calculate playas : {} currentStep : {} get dictScore : {}".format(playas, currentStep,dictScore))
             for keys , value in dictScore.items():
-                print("score_calculate get keys : {} get value : {} chooseScore : {}".format(keys , value, chooseScore))
+                if (self.debugShow == True):
+                    print("score_calculate get keys : {} get value : {} chooseScore : {}".format(keys , value, chooseScore))
                 if chooseStep == '0':
                     chooseScore = value['score']
                     chooseStep = keys
@@ -120,7 +125,8 @@ class markov:
             # currentStep = chooseStep
             self.state_action[currentStep]['score'] = currentScore
             self.state_action[currentStep]['end'] = False
-        print("score_calculate playas : {} get currentStep : {},\tcurrentScore : {:7.4f},\tstepIsEnd : {}".format(playas, currentStep , currentScore , stepIsEnd))    
+        if (self.debugShow == True):
+            print("score_calculate playas : {} get currentStep : {},\tcurrentScore : {:7.4f},\tstepIsEnd : {}".format(playas, currentStep , currentScore , stepIsEnd))    
         self.dictEdgeScore[currentStep] = currentScore
         return currentStep , currentScore , stepIsEnd 
 
@@ -135,7 +141,8 @@ class markov:
         listStep = list(self.state_action[currentStep]['next'])
         # print("find_nextPlay currentStep : {} get listStep : {}".format(currentStep,listStep))
         for stp in listStep:
-            print("score_calculate get stp : {} score : {}".format(stp, self.state_action[stp]['score']))
+            if (self.debugShow == True):
+                print("score_calculate get stp : {} score : {}".format(stp, self.state_action[stp]['score']))
             if self.state_action[stp]['score'] < tempMinScore:
                 tempMinScore = self.state_action[stp]['score']
                 tempMinStep = stp
@@ -186,32 +193,34 @@ class markov:
         operateState = self.stepList[-1]
         print("find_bestPlay playas : {} - get operateState : {}".format(playas,operateState)) 
         byStep , stepScore , status = self.score_calculate(operateState , playas)
-        byStep , stepScore , playasStatus = self.find_Play(operateState , playas)
-        print("find_bestPlay Step : {},\tScore : {:7.4f},\tplayasStatus : {}".format(byStep , stepScore , playasStatus))
-        # print("find_bestPlay get self.listEdge : {}".format(self.listEdge)) 
-        # print("find_bestPlay get self.dictEdgeScore : {}".format(self.dictEdgeScore))
+        if (len(list(self.state_action[operateState]['next'])) > 0):
+            byStep , stepScore , playasStatus = self.find_Play(operateState , playas)
+            print("find_bestPlay Step : {},\tScore : {:7.4f},\tplayasStatus : {}".format(byStep , stepScore , playasStatus))
+            # print("find_bestPlay get self.listEdge : {}".format(self.listEdge)) 
+            # print("find_bestPlay get self.dictEdgeScore : {}".format(self.dictEdgeScore))
 
-        # to show State by relation
-        self.generateGraph()
+            # to show State by relation
+            if (self.updateGraph == True):
+                self.generateGraph()
 
-        nextState = list(self.state_action[byStep]['state'])
-        if playasStatus :
-            playas *= (-1)
+            nextState = list(self.state_action[byStep]['state'])
+            if playasStatus :
+                playas *= (-1)
 
-        for pos in aval_block:
-            # print("find_bestPlay get pos {} of nextState : {} playas : {}".format(pos , nextState[pos-1] , playas))
-            if nextState[pos-1] == playas:
-                play_block = pos
-                print("find_bestPlay Predict play_block : {}".format(play_block))
-                break
-
-        if play_block == 0:
             for pos in aval_block:
                 # print("find_bestPlay get pos {} of nextState : {} playas : {}".format(pos , nextState[pos-1] , playas))
-                if nextState[pos-1] == playas*(-1):
+                if nextState[pos-1] == playas:
                     play_block = pos
                     print("find_bestPlay Predict play_block : {}".format(play_block))
                     break
+
+            if play_block == 0:
+                for pos in aval_block:
+                    # print("find_bestPlay get pos {} of nextState : {} playas : {}".format(pos , nextState[pos-1] , playas))
+                    if nextState[pos-1] == playas*(-1):
+                        play_block = pos
+                        print("find_bestPlay Predict play_block : {}".format(play_block))
+                        break
 
         if play_block == 0:
             play_block = random.choice(left_block)
@@ -305,9 +314,10 @@ class markov:
         
         print("Total number of nodes: ", int(H.number_of_nodes())) 
         print("Total number of edges: ", int(H.number_of_edges())) 
-        print("List of all nodes: ", list(H.nodes())) 
-        print("List of all edges: ", list(H.edges(data = True))) 
-        print("Degree for all nodes: ", dict(H.degree())) 
+        if (self.debugShow == True):
+            print("List of all nodes: ", list(H.nodes())) 
+            print("List of all edges: ", list(H.edges(data = True))) 
+            print("Degree for all nodes: ", dict(H.degree())) 
         
         plt.show()
 
