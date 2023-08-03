@@ -72,7 +72,7 @@ class markov:
             # print("keys : {} - value : {}".format(keys, value))
             if state == value['state']:
                 return keys , value["state"]
-        return '-1' , []            
+        return '-1' , list(state)          
 
     def random_next(self , state):
         aval_block = state
@@ -130,7 +130,7 @@ class markov:
         self.dictEdgeScore[currentStep] = currentScore
         return currentStep , currentScore , stepIsEnd 
 
-    def find_Play(self , currentStep = None , playas = -1):
+    def find_Play(self , currentStep = None , playas = 0):
         tempMinScore = 1
         tempMinStep = '0'
         tempMaxScore = -1
@@ -175,7 +175,7 @@ class markov:
         print("find_nextPlay currentStep : {} get PlayStep : {} , playInvert : {}".format(currentStep,tempStep,playInvert))   
         return tempStep , tempScore , playInvert     
 
-    def find_bestPlay(self , state = None , playas = -1):
+    def find_bestPlay(self , state = None , playas = 0):
         aval_block = []
         left_block = []
         play_block = 0
@@ -243,7 +243,7 @@ class markov:
         if keys_state == '-1':
             thisState = str("{}".format(len(self.state_action)))
             thisStateDict = {
-                'state' : list(state),
+                'state' : list(value_state),
                 'next' : [],
                 'score' : score_state,
                 'end' : status_state
@@ -286,7 +286,8 @@ class markov:
         # original Graph created 
         # print("List of H nodes: {}".format(H.nodes())) 
         plt.subplot(111) 
-        print("The original Graph:") 
+        if self.debugShow == True:
+            print("The original Graph:") 
 
         # node_color = [H.degree(v) for v in H] 
         node_color = [5*(nx.get_node_attributes(H, 'Score')[v])  for v in H] 
@@ -311,15 +312,18 @@ class markov:
         plt.tight_layout();
 
         # nx.draw_networkx(H, with_label = True) 
-        
-        print("Total number of nodes: ", int(H.number_of_nodes())) 
-        print("Total number of edges: ", int(H.number_of_edges())) 
-        if (self.debugShow == True):
+        if self.debugShow == True:       
+            print("Total number of nodes: ", int(H.number_of_nodes())) 
+            print("Total number of edges: ", int(H.number_of_edges())) 
             print("List of all nodes: ", list(H.nodes())) 
             print("List of all edges: ", list(H.edges(data = True))) 
             print("Degree for all nodes: ", dict(H.degree())) 
-        
-        plt.show()
+            
+            plt.show()
+        else:
+            print("Total number of nodes: ", int(H.number_of_nodes())) 
+            print("Total number of edges: ", int(H.number_of_edges())) 
+
 
     def updateResult(self ,winner = 0):
         playas = 0

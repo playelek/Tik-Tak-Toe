@@ -87,6 +87,7 @@ class Execution():
                     if eachlayer.__class__.__name__ == "Dense":
                         print(f"{e + 1}/{epochs} - layer : {layerCNT} - weight : {eachlayer.weights} - bias : {eachlayer.bias}")
         layerCNT = 0
+        self.coeff = list()
         for eachlayer in self.network:
             layerCNT += 1
             # cName = eachlayer.__class__
